@@ -13,45 +13,83 @@ REPOSITORY = ''
 HEADERS = ''
 
 def set_up():
+	'''
+	Sets up REPOSITORY and HEADERS
+	'''
+
 	global REPOSITORY
 	global HEADERS
 
 	repository_cmd = "basename -s .git `git config --get remote.origin.url`"
 	repository_output = subprocess.Popen(repository_cmd, shell=True, stdout=subprocess.PIPE)
+	
 	REPOSITORY = repository_output.communicate()[0].decode("utf-8").strip()
 	HEADERS = { 'Authorization': TOKEN }
 
 
+def get_files_changed(commit_hash):
+	'''
+	Get the files changed in each commit
+	'''
+
+	files_cmd = "git diff-tree --no-commit-id --name-only -r " + commit_hash
+	files_output = subprocess.Popen(files_cmd, shell=True, stdout=subprocess.PIPE)
+
+	return files_output.communicate()[0].decode("utf-8")
+
+
 def push_comment(comment, issue_number):
+	'''
+	Sends the comment to the corresponding issue
+	Uses GitHub API
+	'''
+
 	data = { 'body': comment }
-	urlComment = "https://api.github.com/repos/" + USERNAME + "/" + REPOSITORY + "/issues/" + issue_number + "/comments"
-	print(urlComment)
+	urlComment = "https://api.github.com/repos/" \
+		 + USERNAME + "/" \
+		 + REPOSITORY + \
+		 "/issues/" \
+		 + issue_number \
+		 + "/comments"
+
 	requests.post(urlComment, data=json.dumps(data), headers=HEADERS)
 
 
 def commit_push_comments():
+	'''
+	Main function to send all comments to corresponding issues
+	'''
+
+	# gets the current branch
 	branch_cmd = "git branch -vv"
-	branch_output = subprocess.Popen(branch_cmd, shell=True, stdout=subprocess.PIPE)
-	branch = branch_output.communicate()[0].decode("utf-8").split('[')[1].split(':')[0]
-	
+	branch_cmd_output = subprocess.Popen(branch_cmd, shell=True, stdout=subprocess.PIPE)
+	branch = branch_cmd_output.communicate()[0].decode("utf-8").split('[')[1].split(':')[0]
+
+	# gets all unpushed commits
 	commits_cmd = "git log %s..HEAD"%(branch)
-	commits_output = subprocess.Popen(commits_cmd, shell=True, stdout=subprocess.PIPE)
-	commits_name_output = commits_output.communicate()[0].decode("utf-8")
-	commits_name_output = re.sub(r'\n\s*\n', '\n', commits_name_output, flags=re.MULTILINE).split('\n')
+	commits_cmd_output = subprocess.Popen(commits_cmd, shell=True, stdout=subprocess.PIPE)
+	commits_output = commits_cmd_output.communicate()[0].decode("utf-8")
+	
+	# removes the empty lines
+	commits_output = re.sub(r'\n\s*\n', '\n', commits_output, flags=re.MULTILINE).split('\n')
 
 	i = 0
 	issue_number = ''
+	files_changed = ''
 	comment = ''
 
-	for line in commits_name_output:
+	# creates the comment for each commit
+	for line in commits_output:
 		if(i == 4):
+			comment += '\nFiles changed: \n' + files_changed
 			push_comment(comment, issue_number)
-			i = 0
+			files_changed = ''
 			comment = ''
+			i = 0
 
-		if (i == 0):
-			# commitHash = line.split()
-			# comment += commitHash[1] + "\n"
+		if (i == 0 and line):
+			commit_hash = line.split()[1]
+			files_changed = get_files_changed(commit_hash)
 			i += 1
 			continue
 
@@ -75,8 +113,18 @@ def commit_push_comments():
 			i += 1
 			continue
 
+	# one empty line stil remains at the end of the list -_-
+	commits_output = list(filter(lambda x: x != '', commits_output))
 
-	comment = 'The user ' + USERNAME + ' made a push at this repo at ' + datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+	# number of commits involved in the push
+	commits_number = int(len(commits_output)/4)
+
+	# the push comment itself 
+	comment = 'The user ' + USERNAME \
+		 + ' made a push at this repo at ' \
+		 + datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+		 + '\n\n' + str(commits_number) + ' commits have been submitted.'
+	
 	push_comment(comment, issue_number)
 
 

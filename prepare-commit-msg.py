@@ -5,7 +5,26 @@ import requests
 import json
 import subprocess
 
+USERNAME = ''
+REPOSITORY = ''
+
+def set_up():
+	'''
+	Sets up variable REPOSITORY
+	'''
+	
+	global REPOSITORY
+ 
+	repository_cmd = "basename -s .git `git config --get remote.origin.url`"
+	repository_output = subprocess.Popen(repository_cmd, shell=True, stdout=subprocess.PIPE)
+	REPOSITORY = repository_output.communicate()[0].decode("utf-8").strip()
+
+
 def commit_validation():
+	'''
+	Validates the last commit
+	'''
+	
 	# gets the last commit message
 	msgfile = sys.argv[1]
 
@@ -13,7 +32,7 @@ def commit_validation():
 	with open(msgfile) as f:
 		contents = f.read()
 
-	# regex to validate the commig
+	# regex to validate the commit
 	regex = '^(feat|hotfix|chore|test):.* \(#[0-9]+\)$'
 
 	# commit validation
@@ -35,7 +54,7 @@ def commit_validation():
 	issue_number = re.search(r'(\d+)', issue_number[-1]).group()
 
 	# creates the url to acess the GitHub API
-	url = "https://api.github.com/repos/vitumenezes/python-git-hooks/issues/" + issue_number
+	url = "https://api.github.com/repos/" + USERNAME + "/" + REPOSITORY + "/issues/" + issue_number
 
 	# gets API response
 	response = requests.get(url)
@@ -57,9 +76,10 @@ def commit_validation():
 
 	# if not, exits
 	if not doing:
-		print("This issue has not the 'doing' label. Please check repo for more information")
+		print("This issue has not the 'doing' label. Please check repo for more information.")
 		exit(1)
 
 
 if __name__ == "__main__":
+	set_up()
 	commit_validation()
