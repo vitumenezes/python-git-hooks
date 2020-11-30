@@ -81,7 +81,7 @@ def commit_push_comments():
 	# creates the comment for each commit
 	for line in commits_output:
 		if(i == 4):
-			comment += '\nFiles changed: \n' + files_changed
+			comment += '\n:memo: **Files changed:** \n' + files_changed
 			push_comment(comment, issue_number)
 			files_changed = ''
 			comment = ''
@@ -96,20 +96,20 @@ def commit_push_comments():
 		if (i == 1):
 			author = line.split(':')
 			author = author[1].split('<')
-			comment += "Commit author: " + author[0].strip() + "\n"
+			comment += ":bust_in_silhouette: **Commit author:** " + author[0].strip() + "\n"
 			i += 1
 			continue
 
 		if (i == 2):
 			data = line.split()
 			data = data[1] + " " + data[2] + " " + data[3] + " " + data[4] + " " + data[5]
-			comment += "Date and hour: " + data + "\n"
+			comment += ":clock3: **Date and hour:** " + data + "\n"
 			i += 1
 			continue
 
 		if (i == 3):
 			issue_number = re.search(r'#(\d+)', line).group().replace('#', '')
-			comment += "Commit description:\n'" + line + "'\n"
+			comment += ":speech_balloon: **Commit description:**\n'" + line + "'\n"
 			i += 1
 			continue
 
@@ -120,10 +120,11 @@ def commit_push_comments():
 	commits_number = int(len(commits_output)/4)
 
 	# the push comment itself 
-	comment = 'The user ' + USERNAME \
-		 + ' made a push at this repo at ' \
+	comment = 'The user :bust_in_silhouette:[' + USERNAME \
+		 + '](https://github.com/' + USERNAME \
+		 + ') made a push at this repo at ' \
 		 + datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
-		 + '\n\n' + str(commits_number) + ' commits have been submitted.'
+		 + '\n\n:information_source: **' + str(commits_number) + ' commits** have been submitted.'
 	
 	push_comment(comment, issue_number)
 
