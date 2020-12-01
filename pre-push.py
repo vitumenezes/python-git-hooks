@@ -80,7 +80,9 @@ def commit_push_comments():
 
 	# creates the comment for each commit
 	for line in commits_output:
-		if(i == 4):
+		if ('Merge: ' in line): continue
+
+		if (i == 4):
 			comment += '\n:memo: **Files changed:** \n' + files_changed
 			push_comment(comment, issue_number)
 			files_changed = ''
