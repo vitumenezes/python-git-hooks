@@ -48,13 +48,13 @@ For each commit, a comment with author's name, date and time, changed files and 
 
 Be like:
 
-![Comment](.git/commit-comment.png)
+![Comment](.github/commit-comment.png)
 
 And, for each push, a comment with author's name, date and time and number of commits.
 
 Be like:
 
-![Comment](.git/push-comment.png)
+![Comment](.github/push-comment.png)
 
 ## How it works
 
