@@ -14,7 +14,7 @@ def set_up():
 	'''
 	
 	global REPOSITORY
- 
+
 	repository_cmd = "basename -s .git `git config --get remote.origin.url`"
 	repository_output = subprocess.Popen(repository_cmd, shell=True, stdout=subprocess.PIPE)
 	REPOSITORY = repository_output.communicate()[0].decode("utf-8").strip()
@@ -24,7 +24,7 @@ def commit_validation():
 	'''
 	Validates the last commit
 	'''
-	
+
 	# gets the last commit message
 	msgfile = sys.argv[1]
 
@@ -66,7 +66,7 @@ def commit_validation():
 
 	# gets the issue labels
 	labels = response.json()['labels']
- 
+
 	# checks if the issue have the 'doing' label
 	doing = False
 	for label in labels:

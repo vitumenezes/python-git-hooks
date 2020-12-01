@@ -125,7 +125,7 @@ def commit_push_comments():
 		 + ') made a push at this repo at ' \
 		 + datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
 		 + '\n\n:information_source: **' + str(commits_number) + ' commits** have been submitted.'
-	
+
 	push_comment(comment, issue_number)
 
 
