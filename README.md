@@ -64,9 +64,9 @@ First of all you need to create a [github personal acces token](https://github.c
 USERNAME = 'vitumenezes'
 TOKEN = 'Token 4Tby&8202&89#rfwtInNSUUnby&82'
 ```
-> :warning: Need to be like this: 'Token *your_acess_token*'.
+> :warning: Need to be like this: 'Token *your_access_token*'.
 
-The, just copy the python script to corresponding script inside ```.git/hooks/``` where the example files that git offers are usually located.
+Then, just copy the python script to corresponding script inside ```.git/hooks/``` where the example files that git offers are usually located.
 
 > :warning: **NOTE:** remove the file extension for the script to work. Your file must be like ```prepare-commit-msg``` **and not** ```prepare-commit-msg.py``` or ```prepare-commit-msg.example```.
 
